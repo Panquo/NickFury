@@ -1,0 +1,24 @@
+{
+  "name": "nickfury",
+  "version": "1.0.0",
+  "description": "a discord bot for nickname management",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/bot.ts",
+    "deploy": "tsx src/deploy.ts",
+    "start": "node dist/index.js",
+    "build": "tsup src/bot.ts --minify"
+  },
+  "author": "panquo",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.1",
+    "firebase": "^10.8.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}
