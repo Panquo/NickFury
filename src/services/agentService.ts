@@ -10,9 +10,7 @@ export async function getAll(): Promise<Agent[]> {
     let agents: Agent[] = []
     querySnapshot.forEach((doc) => {
         agents.push(doc.data() as Agent)
-        console.log(`${doc.id} => ${doc.data() as Agent}`);
     });
-    console.log(agents);
 
     return agents
 }
@@ -41,6 +39,22 @@ export async function recruit(agent: Agent): Promise<FirebaseResponse> {
             }
         } else {
             return { success: false, error: { code: 444, message: "Agent is already recruited" } }
+        }
+    })
+}
+export async function setNick(agent: Agent): Promise<FirebaseResponse> {
+    return exists(agent).then(async res => {
+        if (res) {
+            try {
+                await setDoc(doc(agentsRef, agent.user_id), {
+                    current_nick: agent.current_nick || ""
+                });
+                return { success: true }
+            } catch (e) {
+                return { success: false, error: { code: 500, message: `Error recruiting agent: ${e}` } }
+            }
+        } else {
+            return await recruit(agent)
         }
     })
 }
