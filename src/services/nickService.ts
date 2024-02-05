@@ -1,44 +1,73 @@
 import db from "../firebase";
 import { addDoc, collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 import { Nick } from "../models/nick";
-import { FirebaseResponse } from "../models/firebaseHelpers";
+
+const UpdateNickError = Error
+const AddNickError = Error
+const GetNickError = Error
+const GetAllNickError = Error
+
+const UpdateLoreError = Error
 
 const nicksRef = collection(db, "nick");
 
-export async function getAll(): Promise<Nick[]> {
-    const querySnapshot = await getDocs(nicksRef);
-    let nicks: Nick[] = []
-    querySnapshot.forEach((doc) => {
-        nicks.push(doc.data() as Nick)
-    });
-    return nicks
+export async function setLore(nick_id: string, lore: string): Promise<void> {
+    return await get(nick_id)
+        .then(async nick => {
+            nick.lore = lore
+            return await update(nick)
+                .then()
+                .catch(error => { throw UpdateLoreError(error) })
+
+        })
+        .catch(error => { throw GetNickError(error) })
+}
+export async function findNickByName(nick_value: string): Promise<Nick[]> {
+    return (await getAll()).filter(nick => nick.value === nick_value)
+
+}
+
+export async function addNick(nick: Nick): Promise<string> {
+    return await add(nick)
+        .then(res => res)
+        .catch(error => { throw AddNickError(error) })
+}
+export async function getNick(nick_id: string): Promise<Nick> {
+    return await get(nick_id)
+        .then(res => {
+            return res
+        })
+        .catch(error => { throw GetNickError(error) })
+}
+async function add(nick: Nick): Promise<string> {
+    return addDoc(nicksRef, nick)
+        .then(res => { return res.id })
+        .catch(error => { throw AddNickError(error) })
+}
+
+async function get(nick_id: string): Promise<Nick> {
+    return getDoc(doc(db, "nick", nick_id))
+        .then(res => { let nick = res.data() as Nick; nick.id = res.id; return nick })
+        .catch(error => { throw GetNickError(error) })
+}
+
+async function update(nick: Nick): Promise<void> {
+    return setDoc(doc(nicksRef, nick.id), nick)
+        .then()
+        .catch(error => { throw UpdateNickError(error) })
 }
 
 
-export async function addNick(nick: Nick): Promise<FirebaseResponse> {
-    try {
-        let docRef = await addDoc(nicksRef, {
-            lore: nick.lore,
-            value: nick.value,
-            shooter: nick.shooter,
-            target: nick.target,
-            timestamp: nick.timestamp
-        });
-        return { success: true, data: docRef }
-    } catch (e) {
-        return { success: false, error: { code: 500, message: `Error adding nickname: ${e}` } }
-    }
+async function getAll(): Promise<Nick[]> {
+    return getDocs(nicksRef)
+        .then(querySnapshot => {
+            let nicks: Nick[] = []
+            querySnapshot.forEach((doc) => {
+                nicks.push(doc.data() as Nick)
+            });
+            return nicks
+        })
+        .catch(error => { throw GetAllNickError(error) })
 }
 
-// create(tutorial) {
-//     return db.add(tutorial);
-// }
-
-// update(id, value) {
-//     return db.doc(id).update(value);
-// }
-
-// delete(id) {
-//     return db.doc(id).delete();
-// }
 

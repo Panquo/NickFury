@@ -1,6 +1,8 @@
 import { CommandInteraction, GuildMember, SlashCommandBuilder } from "discord.js";
 import { Agent } from "../models/agent";
 import * as agentService from "../services/agentService"
+import * as nickService from "../services/nickService"
+import { Nick } from "../models/nick";
 
 export const data = new SlashCommandBuilder()
     .setName("recruit")
@@ -16,14 +18,28 @@ export async function execute(interaction: CommandInteraction) {
         if (target.user.bot) {
             return interaction.reply("Bzzt... Error 0101: Bots can't hide behind nicknames...");
         }
-
-        await agentService.recruit(new Agent(target.user.id, target.nickname || undefined)).then(res => {
-            if (res.success) {
-                return interaction.reply(`Agent ${target} successfully recruited !`);
-            } else {
-                return interaction.reply(res.error?.message || 'Something went wrong ...');
+        let agent: Agent = {
+            user_id: target.user.id
+        }
+        await agentService.recruit(agent).then(() => {
+            if (target.nickname) {
+                let nick: Nick = {
+                    value: target.nickname,
+                    lore: "",
+                    target: target.user.id,
+                    timestamp: new Date().getTime()
+                }
+                nickService.addNick(nick).then(res => {
+                    agent.current_nick_id = res
+                    agentService.updateAgentNickname(agent)
+                })
             }
+            return interaction.reply(`Agent ${target} successfully recruited !`);
         })
+            .catch(error => {
+
+                return interaction.reply(`Something went wrong : ${error}`);
+            })
 
     }
 

@@ -28,30 +28,30 @@ export async function execute(interaction: any) {
     const nickname = interaction.options.getString('nickname');
     const lore = interaction.options.getString('lore');
 
-    const nick: Nick = new Nick(nickname, lore, shooter.id, target.user.id, new Date().getTime())
-    try {
-        await target?.setNickname(nickname)
-        nickService.addNick(nick).then(fbRes => {
-            if (fbRes.success) {
-                console.log(fbRes.data);
-
-                let agent = new Agent(target.user.id, fbRes.data)
-                agentService.setNick(agent).then(res => {
-                    if (res.success) {
-                        return interaction.reply(`Hey ! ${shooter} changed ${target}'s nickname !`);
-                    } else {
-                        return interaction.reply(`Error while saving nickname : (${res.error})`);
-                    }
-                })
-            } else {
-                return interaction.reply(`Error while adding nickname : (${fbRes.error})`);
-            }
-        })
-    } catch (e) {
-        console.log(e);
-
-        return interaction.reply(`Error while changing nickname : (${e})`);
+    const nick: Nick = {
+        value: nickname,
+        lore: lore,
+        shooter: shooter.id,
+        target: target.user.id,
+        timestamp: new Date().getTime()
     }
+    await target?.setNickname(nickname)
+    nickService.addNick(nick).then(nick_id => {
+        let agent: Agent = {
+            user_id: target.user.id,
+            current_nick_id: nick_id
+        }
+        agentService.updateAgentNickname(agent).then(() => {
+            return interaction.reply(`Hey ! ${shooter} changed ${target}'s nickname !`);
+        })
+            .catch(error => {
+                return interaction.reply(`Error while updating nickname : (${error})`);
+            })
+    })
+        .catch(error => {
+            return interaction.reply(`Error while changing nickname : (${error})`);
+
+        })
 
 
 
