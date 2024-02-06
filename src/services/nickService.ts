@@ -18,6 +18,12 @@ const UpdateLoreError = Error;
 
 const NICKS_COLLECTION = collection(db, "nick");
 
+
+/**
+ *  EXPORTED FUNCTIONS
+ */
+
+
 export async function setLore(nick_id: string, lore: string): Promise<void> {
     await get(nick_id)
         .then(async (nick) => {
@@ -32,6 +38,7 @@ export async function setLore(nick_id: string, lore: string): Promise<void> {
             throw GetNickError(error);
         });
 }
+
 export async function findNickByName(nick_value: string): Promise<Nick[]> {
     return (await getAll()).filter((nick) => nick.value === nick_value);
 }
@@ -43,6 +50,7 @@ export async function addNick(nick: Nick): Promise<string> {
             throw AddNickError(error);
         });
 }
+
 export async function getNick(nick_id: string): Promise<Nick> {
     return await get(nick_id)
         .then((res) => {
@@ -52,6 +60,13 @@ export async function getNick(nick_id: string): Promise<Nick> {
             throw GetNickError(error);
         });
 }
+
+
+/**
+ *  LOCAL FUNCTIONS
+ */
+
+
 async function add(nick: Nick): Promise<string> {
     return await addDoc(NICKS_COLLECTION, nick)
         .then((res) => {

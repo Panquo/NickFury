@@ -16,7 +16,13 @@ const GetAgentNicknameError = Error;
 const UpdateNicknameAgentError = Error;
 const RecruitingAgentError = Error;
 
-const AGENTs_COLLECTION = collection(db, "agent");
+const AGENTS_COLLECTION = collection(db, "agent");
+
+
+/**
+ *  EXPORTED FUNCTIONS
+ */
+
 
 export async function recruit(agent: Agent): Promise<void> {
     return await exists(agent).then(async (res) => {
@@ -31,6 +37,7 @@ export async function recruit(agent: Agent): Promise<void> {
         }
     });
 }
+
 export async function getNick(agent: Agent): Promise<Nick> {
     if (agent.current_nick_id)
         try {
@@ -49,15 +56,22 @@ export async function updateAgentNickname(agent: Agent): Promise<void> {
     }
 }
 
-async function exists(agent: Agent): Promise<boolean> {
-    return getAgent(agent.user_id).then((res) => (res ? true : false));
-}
 export async function getAgent(agent_id: string): Promise<Agent> {
     return get(agent_id);
 }
 
+
+/**
+ *  LOCAL FUNCTIONS
+ */
+
+
+async function exists(agent: Agent): Promise<boolean> {
+    return getAgent(agent.user_id).then((res) => (res ? true : false));
+}
+
 async function add(agent: Agent): Promise<void> {
-    return setDoc(doc(AGENTs_COLLECTION, agent.user_id), {
+    return setDoc(doc(AGENTS_COLLECTION, agent.user_id), {
         current_nick_id: "",
     })
         .then()
@@ -79,7 +93,7 @@ async function get(agent_id: string): Promise<Agent> {
 }
 
 async function update(agent: Agent): Promise<void> {
-    return setDoc(doc(AGENTs_COLLECTION, agent.user_id), {
+    return setDoc(doc(AGENTS_COLLECTION, agent.user_id), {
         current_nick_id: agent.current_nick_id,
     })
         .then()
@@ -89,7 +103,7 @@ async function update(agent: Agent): Promise<void> {
 }
 
 async function getAll(): Promise<Agent[]> {
-    return getDocs(AGENTs_COLLECTION)
+    return getDocs(AGENTS_COLLECTION)
         .then((querySnapshot) => {
             const agents: Agent[] = [];
             querySnapshot.forEach((doc) => {
