@@ -16,7 +16,7 @@ const GetAllNickError = Error;
 
 const UpdateLoreError = Error;
 
-const nicksRef = collection(db, "nick");
+const NICKS_COLLECTION = collection(db, "nick");
 
 export async function setLore(nick_id: string, lore: string): Promise<void> {
     await get(nick_id)
@@ -53,7 +53,7 @@ export async function getNick(nick_id: string): Promise<Nick> {
         });
 }
 async function add(nick: Nick): Promise<string> {
-    return await addDoc(nicksRef, nick)
+    return await addDoc(NICKS_COLLECTION, nick)
         .then((res) => {
             return res.id;
         })
@@ -75,7 +75,7 @@ async function get(nick_id: string): Promise<Nick> {
 }
 
 async function update(nick: Nick): Promise<void> {
-    await setDoc(doc(nicksRef, nick.id), nick)
+    await setDoc(doc(NICKS_COLLECTION, nick.id), nick)
         .then()
         .catch((error) => {
             throw UpdateNickError(error);
@@ -83,7 +83,7 @@ async function update(nick: Nick): Promise<void> {
 }
 
 async function getAll(): Promise<Nick[]> {
-    return await getDocs(nicksRef)
+    return await getDocs(NICKS_COLLECTION)
         .then((querySnapshot) => {
             const nicks: Nick[] = [];
             querySnapshot.forEach((doc) => {

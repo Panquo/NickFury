@@ -5,7 +5,7 @@ import * as nickService from "./nickService";
 import { Nick } from "../models/nick";
 
 const NamelessAgentError = Error;
-const AlreadyRecruitedAgent = Error;
+const AlreadyRecruitedAgentError = Error;
 
 const UpdateAgentError = Error;
 const AddAgentError = Error;
@@ -16,7 +16,7 @@ const GetAgentNicknameError = Error;
 const UpdateNicknameAgentError = Error;
 const RecruitingAgentError = Error;
 
-const agentsRef = collection(db, "agent");
+const AGENTs_COLLECTION = collection(db, "agent");
 
 export async function recruit(agent: Agent): Promise<void> {
     return await exists(agent).then(async (res) => {
@@ -27,7 +27,7 @@ export async function recruit(agent: Agent): Promise<void> {
                     throw RecruitingAgentError(error);
                 });
         } else {
-            throw AlreadyRecruitedAgent();
+            throw AlreadyRecruitedAgentError();
         }
     });
 }
@@ -57,7 +57,7 @@ export async function getAgent(agent_id: string): Promise<Agent> {
 }
 
 async function add(agent: Agent): Promise<void> {
-    return setDoc(doc(agentsRef, agent.user_id), {
+    return setDoc(doc(AGENTs_COLLECTION, agent.user_id), {
         current_nick_id: "",
     })
         .then()
@@ -79,7 +79,7 @@ async function get(agent_id: string): Promise<Agent> {
 }
 
 async function update(agent: Agent): Promise<void> {
-    return setDoc(doc(agentsRef, agent.user_id), {
+    return setDoc(doc(AGENTs_COLLECTION, agent.user_id), {
         current_nick_id: agent.current_nick_id,
     })
         .then()
@@ -89,7 +89,7 @@ async function update(agent: Agent): Promise<void> {
 }
 
 async function getAll(): Promise<Agent[]> {
-    return getDocs(agentsRef)
+    return getDocs(AGENTs_COLLECTION)
         .then((querySnapshot) => {
             const agents: Agent[] = [];
             querySnapshot.forEach((doc) => {
