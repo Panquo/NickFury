@@ -11,5 +11,5 @@ if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
 export const config = {
     DISCORD_TOKEN,
     DISCORD_CLIENT_ID,
-    DISCORD_GUILD_ID,
+    DISCORD_GUILD_ID
 };
