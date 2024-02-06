@@ -7,7 +7,7 @@ const firebaseConfig = {
     projectId: "shield-f2465",
     storageBucket: "shield-f2465.appspot.com",
     messagingSenderId: "897376063041",
-    appId: "1:897376063041:web:1612172102b63865e540c0"
+    appId: "1:897376063041:web:1612172102b63865e540c0",
 };
 
 // Initialize Firebase

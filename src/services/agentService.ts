@@ -19,11 +19,13 @@ const RecruitingAgentError = Error;
 const agentsRef = collection(db, "agent");
 
 export async function recruit(agent: Agent): Promise<void> {
-    return await exists(agent).then(async res => {
+    return await exists(agent).then(async (res) => {
         if (!res) {
             return add(agent)
                 .then()
-                .catch(error => { throw RecruitingAgentError(error); });
+                .catch((error) => {
+                    throw RecruitingAgentError(error);
+                });
         } else {
             throw AlreadyRecruitedAgent;
         }
@@ -39,7 +41,6 @@ export async function getNick(agent: Agent): Promise<Nick> {
     throw NamelessAgentError;
 }
 
-
 export async function updateAgentNickname(agent: Agent): Promise<void> {
     try {
         await update(agent);
@@ -48,50 +49,55 @@ export async function updateAgentNickname(agent: Agent): Promise<void> {
     }
 }
 
-
-
-
 async function exists(agent: Agent): Promise<boolean> {
-    return getAgent(agent.user_id)
-        .then(res => res ? true : false);
+    return getAgent(agent.user_id).then((res) => (res ? true : false));
 }
 export async function getAgent(agent_id: string): Promise<Agent> {
     return get(agent_id);
 }
 
-
 async function add(agent: Agent): Promise<void> {
     return setDoc(doc(agentsRef, agent.user_id), {
-        current_nick_id: ""
+        current_nick_id: "",
     })
         .then()
-        .catch(error => { throw AddAgentError(error); });
+        .catch((error) => {
+            throw AddAgentError(error);
+        });
 }
 
 async function get(agent_id: string): Promise<Agent> {
     return getDoc(doc(db, "agent", agent_id))
-        .then(res => { const agent = res.data() as Agent; agent.user_id = res.id; return agent; })
-        .catch(error => { throw GetAgentError(error); });
+        .then((res) => {
+            const agent = res.data() as Agent;
+            agent.user_id = res.id;
+            return agent;
+        })
+        .catch((error) => {
+            throw GetAgentError(error);
+        });
 }
 
 async function update(agent: Agent): Promise<void> {
     return setDoc(doc(agentsRef, agent.user_id), {
-        current_nick_id: agent.current_nick_id
+        current_nick_id: agent.current_nick_id,
     })
         .then()
-        .catch(error => { throw UpdateAgentError(error); });
+        .catch((error) => {
+            throw UpdateAgentError(error);
+        });
 }
-
 
 async function getAll(): Promise<Agent[]> {
     return getDocs(agentsRef)
-        .then(querySnapshot => {
+        .then((querySnapshot) => {
             const agents: Agent[] = [];
             querySnapshot.forEach((doc) => {
                 agents.push(doc.data() as Agent);
             });
             return agents;
         })
-        .catch(error => { throw GetAllAgentError(error); });
+        .catch((error) => {
+            throw GetAllAgentError(error);
+        });
 }
-
