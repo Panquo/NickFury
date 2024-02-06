@@ -4,8 +4,8 @@ import { Agent } from "../models/agent";
 import * as nickService from "./nickService";
 import { Nick } from "../models/nick";
 
-const NamelessAgentError = Error();
-const AlreadyRecruitedAgent = Error();
+const NamelessAgentError = Error;
+const AlreadyRecruitedAgent = Error;
 
 const UpdateAgentError = Error;
 const AddAgentError = Error;
@@ -27,7 +27,7 @@ export async function recruit(agent: Agent): Promise<void> {
                     throw RecruitingAgentError(error);
                 });
         } else {
-            throw AlreadyRecruitedAgent;
+            throw AlreadyRecruitedAgent();
         }
     });
 }
@@ -38,7 +38,7 @@ export async function getNick(agent: Agent): Promise<Nick> {
         } catch (e) {
             throw GetAgentNicknameError(String(e));
         }
-    throw NamelessAgentError;
+    throw NamelessAgentError();
 }
 
 export async function updateAgentNickname(agent: Agent): Promise<void> {
