@@ -23,7 +23,7 @@ export async function execute(interaction: any) {
     const nickname = interaction.options.getString("nickname");
 
     try {
-        let nicks: Nick[] = await nickService.findNickByName(nickname);
+        const nicks: Nick[] = await nickService.findNickByName(nickname);
         return interaction.reply(nicks.map((nick) => nick.lore).join(", "));
     } catch (e) {
         console.log(e);

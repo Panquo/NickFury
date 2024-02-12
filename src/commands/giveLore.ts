@@ -33,7 +33,7 @@ export async function execute(interaction: any) {
     const lore = interaction.options.getString("lore");
 
     try {
-        let agent: Agent = await agentService.getAgent(target.user.id);
+        const agent: Agent = await agentService.getAgent(target.user.id);
         console.log(agent);
 
         if (agent.current_nick_id) {
@@ -43,7 +43,7 @@ export async function execute(interaction: any) {
             );
         } else {
             return interaction.reply(
-                `The targeted agent has no nickname yet, add him one !`,
+                "The targeted agent has no nickname yet, add him one !",
             );
         }
     } catch (e) {

@@ -47,7 +47,7 @@ export async function execute(interaction: any) {
     nickService
         .addNick(nick)
         .then((nick_id) => {
-            let agent: Agent = {
+            const agent: Agent = {
                 user_id: target.user.id,
                 current_nick_id: nick_id,
             };

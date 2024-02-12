@@ -26,14 +26,14 @@ export async function execute(interaction: CommandInteraction) {
                 "Bzzt... Error 0101: Bots can't hide behind nicknames...",
             );
         }
-        let agent: Agent = {
+        const agent: Agent = {
             user_id: target.user.id,
         };
         await agentService
             .recruit(agent)
             .then(() => {
                 if (target.nickname) {
-                    let nick: Nick = {
+                    const nick: Nick = {
                         value: target.nickname,
                         lore: "",
                         target: target.user.id,
