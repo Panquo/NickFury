@@ -6,7 +6,7 @@
     "scripts": {
         "dev": "tsx watch src/bot.ts",
         "deploy": "tsx src/deploy.ts",
-        "start": "node dist/index.js",
+        "start": "node dist/bot.js",
         "build": "tsup src/bot.ts --minify"
     },
     "author": "panquo",
