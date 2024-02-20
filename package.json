@@ -1,24 +1,36 @@
 {
-  "name": "nickfury",
-  "version": "1.0.0",
-  "description": "a discord bot for nickname management",
-  "main": "index.js",
-  "scripts": {
-    "dev": "tsx watch src/bot.ts",
-    "deploy": "tsx src/deploy.ts",
-    "start": "node dist/index.js",
-    "build": "tsup src/bot.ts --minify"
-  },
-  "author": "panquo",
-  "license": "MIT",
-  "dependencies": {
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.4.1",
-    "firebase": "^10.8.0"
-  },
-  "devDependencies": {
-    "tsup": "^8.0.1",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
-  }
+    "name": "nickfury",
+    "version": "1.0.0",
+    "description": "a discord bot for nickname management",
+    "main": "index.js",
+    "scripts": {
+        "dev": "tsx watch src/bot.ts",
+        "deploy": "tsx src/deploy.ts",
+        "start": "node dist/bot.js",
+        "build": "tsup src/bot.ts --minify"
+    },
+    "author": "panquo",
+    "license": "MIT",
+    "dependencies": {
+        "discord.js": "^14.14.1",
+        "dotenv": "^16.4.1",
+        "firebase": "^10.8.0"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^6.21.0",
+        "@typescript-eslint/parser": "^6.21.0",
+        "eslint": "^8.56.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-config-standard-with-typescript": "^43.0.1",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-plugin-n": "^16.6.2",
+        "eslint-plugin-promise": "^6.1.1",
+        "prettier": "3.2.5",
+        "tsup": "^8.0.1",
+        "tsx": "^4.7.0",
+        "typescript": "^5.3.3"
+    },
+    "volta": {
+        "node": "20.11.0"
+    }
 }
