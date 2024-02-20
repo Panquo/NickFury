@@ -5,6 +5,7 @@ import * as nickService from "./nickService";
 import { Nick } from "../models/nick";
 
 const NamelessAgentError = Error;
+const UnknownAgentError = Error;
 const AlreadyRecruitedAgentError = Error;
 
 const UpdateAgentError = Error;
@@ -56,9 +57,9 @@ export async function updateAgentNickname(agent: Agent): Promise<void> {
     }
 }
 
-// export async function getAgent(agent_id: string): Promise<Agent> {
-//     return get(agent_id).then(res=>res||null);
-// }
+export async function getAgent(agent_id: string): Promise<Agent> {
+    return get(agent_id).then((res) => res);
+}
 
 /**
  *  LOCAL FUNCTIONS
@@ -67,7 +68,15 @@ export async function updateAgentNickname(agent: Agent): Promise<void> {
 async function exists(agent: Agent): Promise<boolean> {
     console.log(agent);
 
-    return get(agent.user_id).then((res) => (res ? true : false));
+    return get(agent.user_id)
+        .then(() => true)
+        .catch((error) => {
+            if (error === UnknownAgentError) {
+                return false;
+            } else {
+                throw error;
+            }
+        });
 }
 
 async function add(agent: Agent): Promise<void> {
@@ -80,15 +89,16 @@ async function add(agent: Agent): Promise<void> {
         });
 }
 
-async function get(agent_id: string): Promise<Agent|undefined> {
+async function get(agent_id: string): Promise<Agent> {
     return getDoc(doc(db, "agent", agent_id))
         .then((res) => {
             let agent;
             if (res.data()) {
                 agent = res.data() as Agent;
                 agent.user_id = res?.id;
+                return agent;
             }
-            return agent;
+            throw UnknownAgentError();
         })
         .catch((error) => {
             throw GetAgentError(error);
