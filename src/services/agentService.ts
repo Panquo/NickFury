@@ -18,14 +18,14 @@ const RecruitingAgentError = Error;
 
 const AGENTS_COLLECTION = collection(db, "agent");
 
-
 /**
  *  EXPORTED FUNCTIONS
  */
 
-
 export async function recruit(agent: Agent): Promise<void> {
-    return await exists(agent).then(async (res) => {
+    return exists(agent).then(async (res) => {
+        console.log("RES:", res);
+
         if (!res) {
             return add(agent)
                 .then()
@@ -56,18 +56,18 @@ export async function updateAgentNickname(agent: Agent): Promise<void> {
     }
 }
 
-export async function getAgent(agent_id: string): Promise<Agent> {
-    return get(agent_id);
-}
-
+// export async function getAgent(agent_id: string): Promise<Agent> {
+//     return get(agent_id).then(res=>res||null);
+// }
 
 /**
  *  LOCAL FUNCTIONS
  */
 
-
 async function exists(agent: Agent): Promise<boolean> {
-    return getAgent(agent.user_id).then((res) => (res ? true : false));
+    console.log(agent);
+
+    return get(agent.user_id).then((res) => (res ? true : false));
 }
 
 async function add(agent: Agent): Promise<void> {
@@ -80,11 +80,14 @@ async function add(agent: Agent): Promise<void> {
         });
 }
 
-async function get(agent_id: string): Promise<Agent> {
+async function get(agent_id: string): Promise<Agent|undefined> {
     return getDoc(doc(db, "agent", agent_id))
         .then((res) => {
-            const agent = res.data() as Agent;
-            agent.user_id = res.id;
+            let agent;
+            if (res.data()) {
+                agent = res.data() as Agent;
+                agent.user_id = res?.id;
+            }
             return agent;
         })
         .catch((error) => {

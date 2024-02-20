@@ -26,6 +26,7 @@ export async function execute(interaction: CommandInteraction) {
                 "Bzzt... Error 0101: Bots can't hide behind nicknames...",
             );
         }
+
         const agent: Agent = {
             user_id: target.user.id,
         };
@@ -39,6 +40,7 @@ export async function execute(interaction: CommandInteraction) {
                         target: target.user.id,
                         timestamp: new Date().getTime(),
                     };
+                    console.log(nick);
                     nickService.addNick(nick).then((res) => {
                         agent.current_nick_id = res;
                         agentService.updateAgentNickname(agent);

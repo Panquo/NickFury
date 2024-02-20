@@ -4,6 +4,7 @@ import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
 import * as agentService from "./services/agentService";
 import { Agent } from "./models/agent";
+import { signInWithAnonCredentials } from "./firebase";
 
 const client = new Client({
     intents: ["Guilds", "GuildMessages", "DirectMessages"],
@@ -11,6 +12,7 @@ const client = new Client({
 
 client.once("ready", () => {
     console.log("Discord bot is ready! 🤖");
+    signInWithAnonCredentials();
 });
 
 client.on("guildCreate", async (guild) => {
