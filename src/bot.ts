@@ -2,9 +2,7 @@ import { Client } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
-import * as agentService from "./services/agentService";
-import { Agent } from "./models/agent";
-import { signInWithAnonCredentials } from "./firebase";
+import { signInWithAnonCredentials } from "./database/firebase";
 
 const client = new Client({
     intents: ["Guilds", "GuildMessages", "DirectMessages"],

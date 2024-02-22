@@ -1,13 +1,6 @@
-import {
-    CommandInteraction,
-    GuildMember,
-    Interaction,
-    SlashCommandBuilder,
-} from "discord.js";
-import * as nickService from "../services/nickService";
-import * as agentService from "../services/agentService";
-import { Nick } from "../models/nick";
-import { Agent } from "../models/agent";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { LorelessNickError, Nick, UnknownNickError } from "../database/models/nick";
+import { findNickByName, findNickLoreByName } from "../services/orchestraThor";
 
 export const data = new SlashCommandBuilder()
     .setName("lore")
@@ -23,11 +16,23 @@ export async function execute(interaction: any) {
     const nickname = interaction.options.getString("nickname");
 
     try {
-        const nicks: Nick[] = await nickService.findNickByName(nickname);
-        return interaction.reply(nicks.map((nick) => nick.lore).join(", "));
+        const nicksLores: string[] = await findNickLoreByName(nickname);
+        return interaction.reply(nicksLores.join(","));
     } catch (e) {
-        console.log(e);
-
-        return interaction.reply(`Error while adding nickname : (${e})`);
+        let description = `Unexpected Error : ${e}`;
+        if (e instanceof LorelessNickError) {
+            description = `The nickname "${nickname}" does not have lore yet`;
+        } else if (e instanceof UnknownNickError) {
+            description = `The nickname "${nickname}" is not known, are you sure it is correctly spelled ?`;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle("Error while adding lore")
+            .setDescription(description)
+            .setColor("#f50000")
+            .setTimestamp();
+        return interaction.reply({
+            embeds: [embed],
+            ephemeral: true,
+        });
     }
 }
