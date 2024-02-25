@@ -1,12 +1,19 @@
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     CommandInteraction,
+    EmbedBuilder,
     GuildMember,
     SlashCommandBuilder,
 } from "discord.js";
-import { Agent } from "../models/agent";
-import * as agentService from "../services/agentService";
-import * as nickService from "../services/nickService";
-import { Nick } from "../models/nick";
+import { Nick } from "../database/models/nick";
+import { recruitAgent, setAgentNick } from "../services/orchestraThor";
+import {
+    AlreadyRecruitedAgentError,
+    BotAgentError,
+    UnknownAgentError,
+} from "../database/models/agent";
 
 export const data = new SlashCommandBuilder()
     .setName("recruit")
@@ -20,38 +27,47 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction: CommandInteraction) {
     const target = interaction.options.getMember("target") as GuildMember;
-    if (target) {
-        if (target.user.bot) {
-            return interaction.reply(
-                "Bzzt... Error 0101: Bots can't hide behind nicknames...",
-            );
-        }
 
-        const agent: Agent = {
-            user_id: target.user.id,
-        };
-        await agentService
-            .recruit(agent)
-            .then(() => {
-                if (target.nickname) {
-                    const nick: Nick = {
-                        value: target.nickname,
-                        lore: "",
-                        target: target.user.id,
-                        timestamp: new Date().getTime(),
-                    };
-                    console.log(nick);
-                    nickService.addNick(nick).then((res) => {
-                        agent.current_nick_id = res;
-                        agentService.updateAgentNickname(agent);
-                    });
-                }
-                return interaction.reply(
-                    `Agent ${target} successfully recruited !`,
-                );
-            })
-            .catch((error) => {
-                return interaction.reply(`Something went wrong : ${error}`);
-            });
+    try {
+        if (target.user.bot) {
+            throw new BotAgentError();
+        }
+        await recruitAgent(target.user.id);
+        if (target.nickname) {
+            const nick: Nick = {
+                value: target.nickname,
+                lore: "",
+                target: target.user.id,
+                timestamp: new Date().getTime(),
+            };
+            setAgentNick(target.user.id, nick);
+        }
+        const embed = new EmbedBuilder()
+            .setTitle("🆕  New agent activated  🆕")
+            .setDescription(
+                `**Agent ${target} has joined our ranks !** \n\n *Let's continue our missions with added expertise* 🔍`,
+            )
+            .setColor("#77b255")
+            .setTimestamp();
+        return interaction.reply({ embeds: [embed] });
+    } catch (e) {
+        let description = `Unexpected Error : ${e}`;
+        if (e instanceof BotAgentError) {
+            description =
+                "🤖 Bzzt... Error 0101: Bots can't hide behind nicknames...";
+        } else if (e instanceof AlreadyRecruitedAgentError) {
+            description = `${target} is already an agent ! 🕵️`;
+        } else if (e instanceof UnknownAgentError) {
+            description = `Something went wrong : ${target} vanished... 😧`;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle("⚠️  Error while recruiting agent  ⚠️")
+            .setDescription(description)
+            .setColor("#f50000")
+            .setTimestamp();
+        return interaction.reply({
+            embeds: [embed],
+            ephemeral: true,
+        });
     }
 }

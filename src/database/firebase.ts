@@ -5,7 +5,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
 } from "firebase/auth";
-import { config } from "./config";
+import { config } from "../config";
 
 // Initialize Firebase
 const app = initializeApp(config.firebaseConfig);

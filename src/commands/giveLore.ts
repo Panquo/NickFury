@@ -1,13 +1,9 @@
+import { EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
 import {
-    CommandInteraction,
-    GuildMember,
-    Interaction,
-    SlashCommandBuilder,
-} from "discord.js";
-import * as nickService from "../services/nickService";
-import * as agentService from "../services/agentService";
-import { Nick } from "../models/nick";
-import { Agent } from "../models/agent";
+    NicklessAgentError,
+    UnknownAgentError,
+} from "../database/models/agent";
+import { setAgentNickLore } from "../services/orchestraThor";
 
 export const data = new SlashCommandBuilder()
     .setName("givelore")
@@ -26,27 +22,36 @@ export const data = new SlashCommandBuilder()
     );
 
 export async function execute(interaction: any) {
-    const shooter = interaction.user;
     const target: GuildMember = interaction.options.getMember(
         "target",
     ) as GuildMember;
     const lore = interaction.options.getString("lore");
 
     try {
-        const agent: Agent = await agentService.getAgent(target.user.id);
-        console.log(agent);
-
-        if (agent.current_nick_id) {
-            nickService.setLore(agent.current_nick_id, lore);
-            return interaction.reply(
-                `Hey ! ${shooter} changed ${target}'s nickname lore !`,
-            );
-        } else {
-            return interaction.reply(
-                "The targeted agent has no nickname yet, add him one !",
-            );
-        }
+        await setAgentNickLore(target.user.id, lore);
+        const embed = new EmbedBuilder()
+            .setTitle("📜  Story time !  📜")
+            .setDescription(
+                `**Agent ${target}, your nickname's lore has been issued :** \n\n> ${lore}\n\n *Stay sharp, and operate with precision* 🎯`,
+            )
+            .setColor("#77b255")
+            .setTimestamp();
+        return interaction.reply({ embeds: [embed] });
     } catch (e) {
-        return interaction.reply(`Error while changing lore : (${e})`);
+        let description = `Unexpected Error : ${e}`;
+        if (e instanceof NicklessAgentError) {
+            description = `${target} doesn't have any nickname yet`;
+        } else if (e instanceof UnknownAgentError) {
+            description = `${target} is not an known agent`;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle("⚠️  Error while adding lore  ⚠️")
+            .setDescription(description)
+            .setColor("#f50000")
+            .setTimestamp();
+        return interaction.reply({
+            embeds: [embed],
+            ephemeral: true,
+        });
     }
 }

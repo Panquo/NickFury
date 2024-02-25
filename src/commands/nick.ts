@@ -1,13 +1,7 @@
-import {
-    CommandInteraction,
-    GuildMember,
-    Interaction,
-    SlashCommandBuilder,
-} from "discord.js";
-import * as nickService from "../services/nickService";
-import * as agentService from "../services/agentService";
-import { Nick } from "../models/nick";
-import { Agent } from "../models/agent";
+import { EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
+import { Nick } from "../database/models/nick";
+import { setAgentNick } from "../services/orchestraThor";
+import { UnknownAgentError } from "../database/models/agent";
 
 export const data = new SlashCommandBuilder()
     .setName("nick")
@@ -43,30 +37,30 @@ export async function execute(interaction: any) {
         target: target.user.id,
         timestamp: new Date().getTime(),
     };
-    await target?.setNickname(nickname);
-    nickService
-        .addNick(nick)
-        .then((nick_id) => {
-            const agent: Agent = {
-                user_id: target.user.id,
-                current_nick_id: nick_id,
-            };
-            agentService
-                .updateAgentNickname(agent)
-                .then(() => {
-                    return interaction.reply(
-                        `Hey ! ${shooter} changed ${target}'s nickname !`,
-                    );
-                })
-                .catch((error) => {
-                    return interaction.reply(
-                        `Error while updating nickname : (${error})`,
-                    );
-                });
-        })
-        .catch((error) => {
-            return interaction.reply(
-                `Error while changing nickname : (${error})`,
-            );
+    try {
+        await setAgentNick(target.user.id, nick);
+        await target?.setNickname(nickname);
+        const embed = new EmbedBuilder()
+            .setTitle("🏷️  Someone has been Renamed !  🏷️")
+            .setDescription(
+                `**${target} has been reassigned a new alias by ${shooter}**${lore?`\n\n> ${lore}`:""}\n\n *Stay vigilant, our operatives are ever-adapting* 🕵️`,
+            )
+            .setColor("#77b255")
+            .setTimestamp();
+        return interaction.reply({ embeds: [embed] });
+    } catch (e) {
+        let description = `Unexpected Error : ${e}`;
+        if (e instanceof UnknownAgentError) {
+            description = `${target} is not a known agent 🧑‍🦯`;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle("⚠️  Error while adding nickname  ⚠️")
+            .setDescription(description)
+            .setColor("#f50000")
+            .setTimestamp();
+        return interaction.reply({
+            embeds: [embed],
+            ephemeral: true,
         });
+    }
 }
