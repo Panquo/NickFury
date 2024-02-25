@@ -55,7 +55,7 @@ export async function setAgentNickLore(agent_id: string, lore: string) {
     });
 }
 
-export async function findNickByName(nick_value: string): Promise<Nick[]> {
+export async function findNickByName(nick_value: string): Promise<Nick[]> {   
     const nicks = (await NickCollection.getAll()).filter(
         (nick) => nick.value === nick_value,
     );

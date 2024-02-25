@@ -38,20 +38,23 @@ export async function execute(interaction: any) {
         timestamp: new Date().getTime(),
     };
     try {
-        await target?.setNickname(nickname);
         await setAgentNick(target.user.id, nick);
-        return interaction.reply(
-            `Hey ! ${shooter} changed ${target}'s nickname !`,
-        );
+        await target?.setNickname(nickname);
+        const embed = new EmbedBuilder()
+            .setTitle("🏷️  Someone has been Renamed !  🏷️")
+            .setDescription(
+                `**${target} has been reassigned a new alias by ${shooter}**${lore?`\n\n> ${lore}`:""}\n\n *Stay vigilant, our operatives are ever-adapting* 🕵️`,
+            )
+            .setColor("#77b255")
+            .setTimestamp();
+        return interaction.reply({ embeds: [embed] });
     } catch (e) {
-        console.log("ERRORORORORORO:", e);
-
         let description = `Unexpected Error : ${e}`;
         if (e instanceof UnknownAgentError) {
-            description = `${target} is not a known agent`;
+            description = `${target} is not a known agent 🧑‍🦯`;
         }
         const embed = new EmbedBuilder()
-            .setTitle("Error while adding nickname")
+            .setTitle("⚠️  Error while adding nickname  ⚠️")
             .setDescription(description)
             .setColor("#f50000")
             .setTimestamp();

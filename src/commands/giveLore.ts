@@ -22,7 +22,6 @@ export const data = new SlashCommandBuilder()
     );
 
 export async function execute(interaction: any) {
-    const shooter = interaction.user;
     const target: GuildMember = interaction.options.getMember(
         "target",
     ) as GuildMember;
@@ -30,9 +29,14 @@ export async function execute(interaction: any) {
 
     try {
         await setAgentNickLore(target.user.id, lore);
-        return interaction.reply(
-            `Hey ! ${shooter} changed ${target}'s nickname lore !`,
-        );
+        const embed = new EmbedBuilder()
+            .setTitle("📜  Story time !  📜")
+            .setDescription(
+                `**Agent ${target}, your nickname's lore has been issued :** \n\n> ${lore}\n\n *Stay sharp, and operate with precision* 🎯`,
+            )
+            .setColor("#77b255")
+            .setTimestamp();
+        return interaction.reply({ embeds: [embed] });
     } catch (e) {
         let description = `Unexpected Error : ${e}`;
         if (e instanceof NicklessAgentError) {
@@ -41,7 +45,7 @@ export async function execute(interaction: any) {
             description = `${target} is not an known agent`;
         }
         const embed = new EmbedBuilder()
-            .setTitle("Error while changing lore")
+            .setTitle("⚠️  Error while adding lore  ⚠️")
             .setDescription(description)
             .setColor("#f50000")
             .setTimestamp();
