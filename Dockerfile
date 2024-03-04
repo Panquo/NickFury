@@ -15,6 +15,6 @@ COPY . .
 # Build
 RUN npm run build
 
-USER bot
+USER 1001
 
 CMD ["node", "dist/bot.js"]
