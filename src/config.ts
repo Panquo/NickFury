@@ -1,9 +1,30 @@
 import dotenv from "dotenv";
-import { firebaseConfig } from "./firebaseConfig";
 
 dotenv.config();
 
-const { DISCORD_TOKEN, DISCORD_CLIENT_ID, DISCORD_GUILD_ID, firebaseMail,firebasePassword } = process.env;
+const {
+    DISCORD_TOKEN,
+    DISCORD_CLIENT_ID,
+    DISCORD_GUILD_ID,
+    firebaseMail,
+    firebasePassword,
+    FIRESTORE_APIKEY,
+    FIRESTORE_AUTHDOMAIN,
+    FIRESTORE_PROJECTID,
+    FIRESTORE_STORAGEBUCKET,
+    FIRESTORE_MESSAGINGSENDERID,
+    FIRESTORE_APPID,
+} = process.env;
+
+const firebaseConfig = {
+    apiKey: FIRESTORE_APIKEY,
+    authDomain: FIRESTORE_AUTHDOMAIN,
+    projectId: FIRESTORE_PROJECTID,
+    storageBucket: FIRESTORE_STORAGEBUCKET,
+    messagingSenderId: FIRESTORE_MESSAGINGSENDERID,
+    appId: FIRESTORE_APPID,
+};
+
 
 if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID) {
     throw new Error("Missing Discord environment variables");

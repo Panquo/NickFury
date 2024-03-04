@@ -9,5 +9,5 @@ export const commands = {
     givelore,
     recruit,
     nick,
-    test
+    test,
 };
